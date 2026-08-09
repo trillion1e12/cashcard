@@ -50,7 +50,7 @@ test {
 
 spotless {
 	java {
-		eclipse().configFile('spotless-format.xml').sortMembersEnabled(true)
+		eclipse().configFile('spotless-format.xml')
 		removeUnusedImports()
 		importOrder('java|javax', '', group)
 		endWithNewline()
