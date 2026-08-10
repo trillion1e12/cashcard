@@ -16,9 +16,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) {
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(request -> request.requestMatchers("/cashcards/**").authenticated())
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers("/cashcards/**").hasRole("CARD-OWNER")
+                // .anyRequest().authenticated()
+                )
                 .httpBasic(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable());
 
@@ -33,12 +36,19 @@ public class SecurityConfig {
     @Bean
     UserDetailsService testOnlyUsers(PasswordEncoder passwordEncoder) {
         UserBuilder users = User.builder();
+
         UserDetails sarah = users
                 .username("sarah1")
                 .password(passwordEncoder.encode("abc123"))
-                .roles()
+                .roles("CARD-OWNER")
                 .build();
 
-        return new InMemoryUserDetailsManager(sarah);
+        UserDetails hankOwnsNoCards = users
+                .username("hank-owns-no-cards")
+                .password(passwordEncoder.encode("qrs456"))
+                .roles("NON-OWNER")
+                .build();
+
+        return new InMemoryUserDetailsManager(sarah, hankOwnsNoCards);
     }
 }
